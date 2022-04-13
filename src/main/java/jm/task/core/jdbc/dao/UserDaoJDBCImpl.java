@@ -24,45 +24,65 @@ public class UserDaoJDBCImpl implements UserDao {
                 "lastName varchar(30)," +
                 "age tinyint)";
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             statement.executeUpdate(option);
-            connection.rollback();
+            connection.commit();
         } catch (SQLException e) {
             System.out.println("A table with the same name already exists");
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void dropUsersTable() {
         option = "drop table UsersTable";
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             statement.executeUpdate(option);
-            connection.rollback();
+            connection.commit();
         } catch (SQLException e) {
             System.out.println("The table you are trying to delete doesn't exist");
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
         option = "insert into UsersTable(name, lastName, age) values('" + name + "', '" + lastName + "', " + age + ")";
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             statement.executeUpdate(option);
             System.out.println("User " + name + " has been added to the database");
-//            connection.rollback();        // Нельзя восстановить состояние, потому что оно нужно для методов
-        } catch (SQLException e) {          // removeUserById(), getAllUsers() и cleanUsersTable() (как я понял)
+            connection.commit();
+        } catch (SQLException e) {
             System.out.println("The table you are trying to delete doesn't exist");
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void removeUserById(long id) {
         option = "delete from UsersTable where id = " + id;
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             statement.executeUpdate(option);
-            connection.rollback();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -70,7 +90,7 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> list = new ArrayList<>();
         option = "select * from UsersTable";
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             ResultSet resultSet = statement.executeQuery(option);
             while (resultSet.next()) {
                 User user = new User();
@@ -81,9 +101,14 @@ public class UserDaoJDBCImpl implements UserDao {
                 System.out.println(user);
                 list.add(user);
             }
-            connection.rollback();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
         return list;
     }
@@ -91,11 +116,16 @@ public class UserDaoJDBCImpl implements UserDao {
     public void cleanUsersTable() {
         option = "truncate UsersTable";
         try (Statement statement = connection.createStatement()){
-            connection.commit();
+            connection.setAutoCommit(false);
             statement.executeUpdate(option);
-            connection.rollback();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

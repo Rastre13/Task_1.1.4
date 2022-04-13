@@ -20,7 +20,7 @@ public class Util {
 
         try {
             connection = DriverManager.getConnection(URL, LOGIN, PASSWORD);
-            connection.setAutoCommit(false);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
